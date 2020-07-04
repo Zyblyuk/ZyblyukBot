@@ -2,6 +2,27 @@ from save_and_load import Users
 import telebot
 from telebot import types
 
+
+def cut(data, begin, end):
+    list = {}
+    step = begin
+    for key in List.users.keys():
+        if step == end:
+            break
+        list[key] = data[key]
+        step += 1
+    return list
+
+def next(list):
+    keyboard = types.InlineKeyboardMarkup()
+    for key in list.keys():
+        string = ''
+        for i in list[key]:
+            string += str(i) + ' '
+        callback_button = types.InlineKeyboardButton(text=string, callback_data=key)
+        keyboard.add(callback_button)
+    return keyboard
+iter = 0
 List = Users("DataBase")
 print(List.users)
 def push_back_List(message):
@@ -16,11 +37,11 @@ bot = telebot.TeleBot('1159344872:AAHPZvYQrm8vNILYunGT-qhefwkoUzHQmyI')
 
 def return_String (message):
     String = ''
-    if message.from_user.first_name != None and message.from_user.first_name != '..,':
+    if message.from_user.first_name != None :
         String += message.from_user.first_name + " "
     if message.from_user.last_name != None :
         String += message.from_user.last_name + " "
-    if  message.from_user.username != None :
+    if message.from_user.username != None :
         String += message.from_user.username + " "
     return String
 
@@ -28,26 +49,41 @@ def return_String (message):
 def start(message):
     global List
     push_back_List(message)
-    bot.send_message(message.chat.id, "Привет, ублюдок")
+    bot.send_message(message.chat.id, "Приветики")
     String = return_String(message) + ' use "/start"'
     if message.chat.id != 422752846 :
         bot.send_message(422752846, String)
-    print(String + "\nBot:\n-Привет, ублюдок\n")
+    print(String + "\nBot:\n-Приветики\n")
 
 @bot.message_handler(commands=['take_control'])
 def take_control(message):
     if message.chat.id != 422752846 :
         bot.send_message(422752846, "Это комманда только для админа, ты не админ!")
         return
-    global List
+    global iter
     keyboard = types.InlineKeyboardMarkup()
-    for key in List.users.keys():
-        string = ''
-        for i in List.users[key]:
-            string += str(i) + ' '
-        callback_button = types.InlineKeyboardButton(text=string, callback_data="test")
-        keyboard.add(callback_button)
+    list = cut(List.users, iter, iter + 3)
+    next_list_button = types.InlineKeyboardButton(text="Next", callback_data="next")
+    keyboard.add(next(list), next_list_button)
+    if next_list_button.callback_data == "next":
+        iter += 3
+        list = cut(List.users, iter, iter + 3)
+        keyboard = next(list)
+        keyboard.add(next_list_button)
     bot.send_message(message.chat.id, "Выбери ключ:", reply_markup=keyboard)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    global List
+    if call.data in List.users:
+        print(List.users[call.data])
+    if call.data == "Next":
+        global iter
+        iter += 3
+        list = cut(List.users, iter, iter + 3)
+        keyboard = next(list)
+        keyboard.add(types.InlineKeyboardButton(text="Next", callback_data="next"))
 
 @bot.message_handler(commands=['list_clear'])
 def take_control(message):
