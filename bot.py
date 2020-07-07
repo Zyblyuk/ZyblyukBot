@@ -1,4 +1,5 @@
 from save_and_load import Users
+from Token import token
 import telebot
 from telebot import types
 
@@ -33,7 +34,7 @@ def push_back_List(message):
             List.users[message.chat.id] = [message.from_user.first_name, message.from_user.last_name, message.from_user.username]
             List.save()
 
-bot = telebot.TeleBot('1159344872:AAHPZvYQrm8vNILYunGT-qhefwkoUzHQmyI')
+bot = telebot.TeleBot(token)
 
 def return_String (message):
     String = ''

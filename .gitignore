@@ -8,6 +8,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 DataBase
+Token.py
 # C extensions
 *.so
 
